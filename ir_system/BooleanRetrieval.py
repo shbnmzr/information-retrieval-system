@@ -6,7 +6,9 @@ path = '../collection/'
 
 class BooleanRetrieval:
     operator = {
-        'and', 'or', 'not'
+        'and': 1,
+        'or': 1,
+        'not': 2
     }
 
     def __init__(self, query):
@@ -75,32 +77,74 @@ class BooleanRetrieval:
 
         return complemented
 
-    def perform_operation(self, operator, term1, term2):
+    @staticmethod
+    def perform_operation(operator, term1, term2):
         operators = {
             'and': BooleanRetrieval.intersect,
             'or': BooleanRetrieval.union,
             'not': BooleanRetrieval.complement
         }
 
-        term1_docs = self.inverted_index[term1]
-        term2_docs = self.inverted_index[term2]
-
-        return operators[operator](term1_docs, term2_docs)
+        return operators[operator](term1, term2)
 
     def split_query_terms(self):
         terms = self.query.get_lemmas
         return terms
 
-    def response_to_query(self, terms):
-        pass
+    def respond_to_query(self):
+        postings_stack = []
+        operators_stack = []
+
+        i = 0
+        while i < len(self.query.get_lemmas):
+            if (current := self.query.get_lemmas[i]) == '(':
+                operators_stack.append(current)
+            elif current not in BooleanRetrieval.operator.keys():
+                if current in self.inverted_index:
+                    postings_stack.append(self.inverted_index[current])
+                else:
+                    return []
+            elif current == ')':
+                while operators_stack[-1] != '(' and len(operators_stack) != 0:
+                    term1 = postings_stack.pop()
+                    term2 = postings_stack.pop()
+                    operator = operators_stack.pop()
+
+                    postings_stack.append(BooleanRetrieval.perform_operation(operator, term1, term2))
+                operators_stack.pop()
+
+            else:
+                if current == 'not':
+                    next_term = self.query.get_lemmas[i + 1]
+                    complemented = BooleanRetrieval.perform_operation(current, self.inverted_index[next_term], self.collection.get_inverted_index_without_freq[next_term])
+                    postings_stack.append(complemented)
+                    i += 2
+                    continue
+
+                while len(operators_stack) != 0:
+                    term1 = postings_stack.pop()
+                    term2 = postings_stack.pop()
+                    operator = operators_stack.pop()
+
+                    postings_stack.append(BooleanRetrieval.perform_operation(operator, term1, term2))
+                operators_stack.append(current)
+            i += 1
+
+        while len(operators_stack) != 0:
+            term1 = postings_stack.pop()
+            term2 = postings_stack.pop()
+            operator = operators_stack.pop()
+
+            postings_stack.append(BooleanRetrieval.perform_operation(operator, term1, term2))
+
+        return postings_stack[-1]
 
 
 def main():
-    query = '1984 or baby and not some'
+    query = '(1984 or world) or not the'
     boolean = BooleanRetrieval(query)
     boolean.split_query_terms()
-    print(boolean.perform_operation('or', '1984', 'the'))
-    print(boolean.perform_operation('and', '1984', 'the'))
+    print(boolean.respond_to_query())
 
 
 if __name__ == '__main__':

@@ -12,6 +12,7 @@ class DocumentPreprocessor:
         self._lemmas = self.lemmatize_tokens()
         self._terms = self.determine_terms()
         self._tfs = self.calculater_tf()
+        self._biwords = self.construct_biwords()
 
     @property
     def get_tokens(self):
@@ -28,6 +29,10 @@ class DocumentPreprocessor:
     @property
     def get_tfs(self):
         return self._tfs
+
+    @property
+    def get_biwords(self):
+        return self._biwords
 
     def tokenize_words(self) -> list[str]:
         # keeps contractions as a single token instead of breaking them up
@@ -54,6 +59,15 @@ class DocumentPreprocessor:
             term: self._lemmas.count(term) for term in self._terms
         }
 
+    def construct_biwords(self):
+        biword_terms = list()
+        for index in range(len(self._lemmas) - 1):
+            biword = self._lemmas[index] + ' ' + self._lemmas[index + 1]
+            if biword not in biword_terms:
+                biword_terms.append(biword)
+
+        return biword_terms
+
 
 def main():
     with open('../collection/1984.txt', 'r') as data:
@@ -72,6 +86,10 @@ def main():
 
         tf = preprocessor.get_tfs
         print(tf)
+
+        biwords = preprocessor.construct_biwords()
+        print(biwords)
+        print(len(biwords))
 
 
 if __name__ == '__main__':

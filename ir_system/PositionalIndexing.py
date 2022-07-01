@@ -2,10 +2,11 @@ from DocumentPreprocessor import DocumentPreprocessor
 import os
 
 
-class CollectionPreprocessor:
+class PositionalIndexing:
     def __init__(self, path):
         self.path = path
         self.documents = dict()
+        self.retrieve_documents()
         self._inverted_index = self.construct_inverted_index()
 
     @property
@@ -22,26 +23,33 @@ class CollectionPreprocessor:
                     doc_counter += 1
 
     def construct_inverted_index(self):
-        self.retrieve_documents()
         term_doc_ids = dict()
         for doc_id, doc in self.documents.items():
             for term in doc.get_terms:
                 if term not in term_doc_ids:
-                    term_doc_ids[term] = [doc_id]
+                    term_doc_ids[term] = [
+                        {doc_id: PositionalIndexing.indices(doc.get_lemmas, term)}
+                    ]
                 else:
-                    term_doc_ids[term].append(doc_id)
+                    term_doc_ids[term].append(
+                        {doc_id: PositionalIndexing.indices(doc.get_lemmas, term)}
+                    )
 
         return {
-            (term, len(term_doc_ids[term])):term_doc_ids[term] for term in term_doc_ids
+                   term: term_doc_ids[term] for term in term_doc_ids
         }
+
+    @staticmethod
+    def indices(document, term):
+        indices = [i for i, x in enumerate(document) if x == term]
+        return indices
 
 
 def main():
-    path = '.\\collection\\'
-    pre = CollectionPreprocessor(path)
+    path = '../collection/'
+    pre = PositionalIndexing(path)
     print(pre.get_inverted_index)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
-    
