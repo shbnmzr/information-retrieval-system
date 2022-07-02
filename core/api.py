@@ -1,12 +1,14 @@
 from flask import Flask
 from flask import jsonify
 from flask import request
+from flask_cors import CORS
 
 from BooleanRetrieval import BooleanRetrieval 
 from RankedRetrieval import RankedRetrieval 
 from PositionalRetrieval import PositionalRetrieval 
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def index():
@@ -24,7 +26,10 @@ def rankedEndpoint():
     query = request.json['query'] 
     model = RankedRetrieval(query)
     response = model.respond_to_query()
-    return jsonify(response)
+    arrayToResponse = list(map(lambda x: list(x), list(response.keys())))
+    for index, item in enumerate(response.values()):
+        arrayToResponse[index].append(item)
+    return jsonify(arrayToResponse)
 
 @app.route('/positional', methods=["POST"])
 def positionalEndpoint():
