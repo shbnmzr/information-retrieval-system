@@ -42,12 +42,14 @@ class BiwordRetrieval:
             intersection.pop(0)
             intersection.pop(0)
 
-        response = {index: self.collection.texts[index] for index in intersection[0]}
-        return intersection[0], response
+        if intersection:
+            response = {index: self.collection.texts[index] for index in intersection[0]}
+            return intersection[0], response
+        return []
 
 
 def main():
-    query = 'United States'
+    query = 'asasas qwqwqwqw'
     pos = BiwordRetrieval(query)
     print(pos.respond_to_query())
 
