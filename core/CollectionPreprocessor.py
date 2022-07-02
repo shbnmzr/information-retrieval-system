@@ -1,7 +1,6 @@
 from DocumentPreprocessor import DocumentPreprocessor
 import os
 
-
 class CollectionPreprocessor:
     def __init__(self, path):
         self.path = path

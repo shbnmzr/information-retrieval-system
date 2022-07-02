@@ -48,12 +48,10 @@ class RankedRetrieval:
 
 
 def main():
-    path = '../collection/'
     query = '1984 Julia world war civil'
     model = RankedRetrieval(query)
     response = model.respond_to_query()
     print(response)
-
 
 if __name__ == '__main__':
     main()

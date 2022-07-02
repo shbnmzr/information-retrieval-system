@@ -138,13 +138,11 @@ class BooleanRetrieval:
 
         return postings_stack[-1]
 
-
 def main():
-    query = '(1984 or world) or not the'
+    query = 'Wuthering'
     boolean = BooleanRetrieval(query)
     boolean.split_query_terms()
     print(boolean.respond_to_query())
-
 
 if __name__ == '__main__':
     main()

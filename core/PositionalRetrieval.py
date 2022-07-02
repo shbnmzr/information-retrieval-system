@@ -91,6 +91,5 @@ def main():
     pos = PositionalRetrieval(query)
     print(pos.respond_to_query())
 
-
 if __name__ == '__main__':
     main()
