@@ -6,7 +6,7 @@ from nltk import PorterStemmer
 class DocumentPreprocessor:
     def __init__(self, doc_unit):
         self.text = doc_unit
-        self.sentences = self.tokenize_sentences()
+        self._sentences = self.tokenize_sentences()
         self._tokens = self.tokenize_words()
         self._stemmed = self.stem_tokens()
         self._lemmas = self.lemmatize_tokens()
@@ -33,6 +33,10 @@ class DocumentPreprocessor:
     @property
     def get_biwords(self):
         return self._biwords
+
+    @property
+    def get_sentences(self):
+        return self._sentences
 
     def tokenize_words(self) -> list[str]:
         # keeps contractions as a single token instead of breaking them up
@@ -90,6 +94,8 @@ def main():
         biwords = preprocessor.construct_biwords()
         print(biwords)
         print(len(biwords))
+
+        print(preprocessor.get_sentences)
 
 
 if __name__ == '__main__':
