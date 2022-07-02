@@ -33,7 +33,7 @@ def rankedEndpoint():
 
 @app.route('/positional', methods=["POST"])
 def positionalEndpoint():
-    query = request.form['query']
+    query = request.json['query']
     pos = PositionalRetrieval(query)
     response = pos.respond_to_query()
     return jsonify(response)
