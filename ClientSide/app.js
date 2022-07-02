@@ -3,6 +3,7 @@ const $$ = (s) => document.querySelectorAll(s);
 
 let currentSearchMethod = "boolean";
 const allowedSearchMethods = ["boolean", "ranked", "positional"];
+let lastQuerySumitted = null;
 
 $$(".option").forEach((a) =>
   a.addEventListener("click", (e) => {
@@ -12,7 +13,7 @@ $$(".option").forEach((a) =>
   })
 );
 
-const results = document.getElementsByTagName("dialog")[0];
+const resultsModal = document.getElementsByTagName("dialog")[0];
 
 function countWords(str) {
   return str.split(" ").length;
@@ -23,13 +24,12 @@ async function doSearch(query) {
     return notify("Query cannot be empty");
   }
 
-  if (["positional"].includes(currentSearchMethod)) {
+  if (["positional", "biword"].includes(currentSearchMethod)) {
     if (queryWordCount == 1) {
-      return notify("Positional retrieval needs at least two words!");
+      return notify("Positional and Biword need at least two words!");
     }
   }
 
-  results.showModal();
   url = "http://localhost:5000/" + currentSearchMethod;
   const rawResponse = await fetch(url, {
     method: "POST",
@@ -40,16 +40,74 @@ async function doSearch(query) {
     body: JSON.stringify({ query }),
   });
   const content = await rawResponse.json();
+  console.log(content);
   if (content.length == 0) {
-    notify("No results found!");
+    return notify("No results found!");
   }
+  lastQuerySumitted = query;
+  showResults(content);
+}
+
+function showResults(results) {
+  while ($("#results").firstChild)
+    $("#results").removeChild($("#results").firstChild);
+  if (currentSearchMethod == "ranked") {
+    showRankedResults(results);
+  }
+  if (["biword", "positional", "boolean"].includes(currentSearchMethod)) {
+    showPositionalResults(results);
+  }
+}
+function showPositionalResults(results) {
+  const docs = results[0];
+  const texts = results[1];
+  const fragment = document.createDocumentFragment();
+  docs.forEach((result) => {
+    const resultEl = document.createElement("div");
+    resultEl.classList.add("result");
+    const heading = document.createElement("h1");
+    const text = document.createElement("p");
+    text.classList.add("text");
+    text.innerHTML = highlightQuery(texts[result]);
+    heading.innerText = `Document ID: ${result}`;
+    resultEl.appendChild(heading);
+    resultEl.appendChild(text);
+    fragment.appendChild(resultEl);
+  });
+  $("#results").appendChild(fragment);
+  resultsModal.showModal();
+}
+function showRankedResults(results) {
+  const fragment = document.createDocumentFragment();
+  results.forEach((result) => {
+    const resultEl = document.createElement("div");
+    resultEl.classList.add("result");
+    const heading = document.createElement("h1");
+    const text = document.createElement("p");
+    text.classList.add("text");
+    text.innerHTML = highlightQuery(result[2]);
+    heading.innerText = `Document ID: ${result[0]}`;
+    resultEl.appendChild(heading);
+    resultEl.appendChild(text);
+    fragment.appendChild(resultEl);
+  });
+  $("#results").appendChild(fragment);
+  resultsModal.showModal();
+}
+
+function highlightQuery(phrase) {
+  let result = phrase;
+  lastQuerySumitted.split(" ").forEach((word) => {
+    result = result.replace(` ${word} `, `<span class="hl">$&</span>`);
+  });
+  return result;
 }
 
 function changeSearchMethod(to = "boolean") {
   if (allowedSearchMethods.includes(to)) currentSearchMethod = to;
 }
 function closeModal(event) {
-  const rect = results.getBoundingClientRect();
+  const rect = resultsModal.getBoundingClientRect();
   const isInDialog =
     rect.top <= event.clientY &&
     event.clientY <= rect.top + rect.height &&
@@ -93,7 +151,7 @@ $("input").addEventListener("keydown", (e) => {
     doSearch(e.target.value);
   }
 });
-results.addEventListener("click", closeModal);
+resultsModal.addEventListener("click", closeModal);
 addEventListener("keydown", (e) => {
   if (e.code == "Escape") closeModal(e);
 });
