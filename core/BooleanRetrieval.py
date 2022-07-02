@@ -3,7 +3,6 @@ from QueryProcessor import QueryProcessor
 
 path = '../collection/'
 
-
 class BooleanRetrieval:
     operator = {
         'and': 1,
