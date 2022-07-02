@@ -1,5 +1,6 @@
 from DocumentPreprocessor import DocumentPreprocessor
 import os
+from collections import OrderedDict
 
 
 class PositionalIndexing:
@@ -27,13 +28,11 @@ class PositionalIndexing:
         for doc_id, doc in self.documents.items():
             for term in doc.get_terms:
                 if term not in term_doc_ids:
-                    term_doc_ids[term] = [
-                        {doc_id: PositionalIndexing.indices(doc.get_lemmas, term)}
-                    ]
+                    term_doc_ids[term] = {
+                        doc_id: PositionalIndexing.indices(doc.get_lemmas, term)
+                    }
                 else:
-                    term_doc_ids[term].append(
-                        {doc_id: PositionalIndexing.indices(doc.get_lemmas, term)}
-                    )
+                    term_doc_ids[term][doc_id] = PositionalIndexing.indices(doc.get_lemmas, term)
 
         return {
                    term: term_doc_ids[term] for term in term_doc_ids
