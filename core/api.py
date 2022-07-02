@@ -4,6 +4,7 @@ from flask import request
 from flask_cors import CORS
 
 from BooleanRetrieval import BooleanRetrieval 
+from BiwordRetrieval import BiwordRetrieval 
 from RankedRetrieval import RankedRetrieval 
 from PositionalRetrieval import PositionalRetrieval 
 
@@ -40,7 +41,10 @@ def positionalEndpoint():
 
 @app.route('/biword', methods=["POST"])
 def biwordEndpoint():
-    pass
+    query = request.json['query']
+    pos = BiwordRetrieval(query)
+    return jsonify(pos.respond_to_query())
+    
 
 if __name__ == '__main__':
     app.run(
