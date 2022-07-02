@@ -50,7 +50,8 @@ class PositionalRetrieval:
             intersection.pop(0)
             intersection.pop(0)
 
-        return intersection[0]
+        response = {index: self.collection.texts[index] for index in intersection[0]}
+        return intersection[0], response
 
     @staticmethod
     def check_positions(term1_list, term2_list):
@@ -87,9 +88,10 @@ class PositionalRetrieval:
 
 
 def main():
-    query = 'in the world'
+    query = 'in the world war'
     pos = PositionalRetrieval(query)
     print(pos.respond_to_query())
+
 
 if __name__ == '__main__':
     main()

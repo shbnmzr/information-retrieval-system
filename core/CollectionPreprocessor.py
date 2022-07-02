@@ -1,9 +1,11 @@
 from DocumentPreprocessor import DocumentPreprocessor
 import os
 
+
 class CollectionPreprocessor:
     def __init__(self, path):
         self.path = path
+        self.texts = dict()
         self.documents = dict()
         self.retrieve_documents()
         self._inverted_index, self._inverted_index_without_freq = self.construct_inverted_index()
@@ -27,6 +29,7 @@ class CollectionPreprocessor:
             if doc.endswith('.txt'):
                 with open(os.path.join(self.path, doc), 'r') as data:
                     text = data.read()
+                    self.texts[doc_counter] = text
                     self.documents[doc_counter] = DocumentPreprocessor(text)
                     doc_counter += 1
 

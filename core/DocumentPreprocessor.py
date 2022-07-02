@@ -5,7 +5,7 @@ from nltk import PorterStemmer
 
 class DocumentPreprocessor:
     def __init__(self, doc_unit):
-        self.text = doc_unit
+        self._text = doc_unit
         self._sentences = self.tokenize_sentences()
         self._tokens = self.tokenize_words()
         self._stemmed = self.stem_tokens()
@@ -13,6 +13,10 @@ class DocumentPreprocessor:
         self._terms = self.determine_terms()
         self._tfs = self.calculater_tf()
         self._biwords = self.construct_biwords()
+
+    @property
+    def get_text(self):
+        return self._text
 
     @property
     def get_tokens(self):
@@ -40,10 +44,10 @@ class DocumentPreprocessor:
 
     def tokenize_words(self) -> list[str]:
         # keeps contractions as a single token instead of breaking them up
-        return nltk.tokenize.regexp_tokenize(self.text, "[\w']+")
+        return nltk.tokenize.regexp_tokenize(self._text, "[\w']+")
 
     def tokenize_sentences(self) -> list[str]:
-        return nltk.tokenize.sent_tokenize(self.text)
+        return nltk.tokenize.sent_tokenize(self._text)
 
     def stem_tokens(self) -> list[str]:
         stemmer = nltk.stem.PorterStemmer(mode=PorterStemmer.NLTK_EXTENSIONS)

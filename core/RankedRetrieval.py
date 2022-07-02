@@ -44,14 +44,17 @@ class RankedRetrieval:
         zipped = zip(self.documents.keys(), sims)
 
         ranked = sorted(zipped, key=lambda x: x[1], reverse=True)
+        ranked = {(doc_id, score): self.collection.texts[doc_id] for doc_id, score in ranked if score > 0}
         return ranked
 
 
 def main():
+    path = '../collection/'
     query = '1984 Julia world war civil'
     model = RankedRetrieval(query)
     response = model.respond_to_query()
     print(response)
+
 
 if __name__ == '__main__':
     main()

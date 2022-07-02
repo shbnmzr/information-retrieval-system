@@ -3,6 +3,7 @@ from QueryProcessor import QueryProcessor
 
 path = '../collection/'
 
+
 class BooleanRetrieval:
     operator = {
         'and': 1,
@@ -133,16 +134,17 @@ class BooleanRetrieval:
             term1 = postings_stack.pop()
             term2 = postings_stack.pop()
             operator = operators_stack.pop()
-
             postings_stack.append(BooleanRetrieval.perform_operation(operator, term1, term2))
 
-        return postings_stack[-1]
+        return postings_stack[-1], {index: self.collection.texts[index] for index in postings_stack[-1]}
+
 
 def main():
-    query = 'Wuthering'
+    query = '(1984 or world) or not the'
     boolean = BooleanRetrieval(query)
     boolean.split_query_terms()
     print(boolean.respond_to_query())
+
 
 if __name__ == '__main__':
     main()
