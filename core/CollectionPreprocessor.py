@@ -7,6 +7,7 @@ class CollectionPreprocessor:
         self.path = path
         self.texts = dict()
         self.documents = dict()
+        self.doc_ids = []
         self.retrieve_documents()
         self._inverted_index, self._inverted_index_without_freq = self.construct_inverted_index()
         self._biwords_inverted_index = self.construct_biwords_inverted_index()
@@ -31,6 +32,7 @@ class CollectionPreprocessor:
                     text = data.read()
                     self.texts[doc_counter] = text
                     self.documents[doc_counter] = DocumentPreprocessor(text)
+                    self.doc_ids.append(doc_counter)
                     doc_counter += 1
 
     def construct_inverted_index(self):

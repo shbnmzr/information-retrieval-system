@@ -44,7 +44,8 @@ class DocumentPreprocessor:
 
     def tokenize_words(self) -> list[str]:
         # keeps contractions as a single token instead of breaking them up
-        return nltk.tokenize.regexp_tokenize(self._text, "[\w']+")
+        tokens = nltk.tokenize.regexp_tokenize(self._text, "[\w'()]+")
+        return [token.lower() for token in tokens]
 
     def tokenize_sentences(self) -> list[str]:
         return nltk.tokenize.sent_tokenize(self._text)

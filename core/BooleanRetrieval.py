@@ -70,7 +70,7 @@ class BooleanRetrieval:
                 i += 1
                 j += 1
             else:
-                complemented.append(collection)
+                complemented.append(collection[j])
                 j += 1
         if j < len(collection):
             complemented.extend(collection[j:])
@@ -103,7 +103,7 @@ class BooleanRetrieval:
                 if current in self.inverted_index:
                     postings_stack.append(self.inverted_index[current])
                 else:
-                    return []
+                    postings_stack.append([])
             elif current == ')':
                 while operators_stack[-1] != '(' and len(operators_stack) != 0:
                     term1 = postings_stack.pop()
@@ -116,7 +116,8 @@ class BooleanRetrieval:
             else:
                 if current == 'not':
                     next_term = self.query.get_lemmas[i + 1]
-                    complemented = BooleanRetrieval.perform_operation(current, self.inverted_index[next_term], self.collection.get_inverted_index_without_freq[next_term])
+                    complemented = BooleanRetrieval.perform_operation(current, self.inverted_index[next_term],
+                                                                      self.collection.doc_ids)
                     postings_stack.append(complemented)
                     i += 2
                     continue
@@ -140,10 +141,10 @@ class BooleanRetrieval:
 
 
 def main():
-    query = '(1984 or world) or not the'
-    boolean = BooleanRetrieval(query)
-    boolean.split_query_terms()
-    print(boolean.respond_to_query())
+    boolean_query = 'the and not 1984'
+    boolean_model = BooleanRetrieval(boolean_query)
+    response = boolean_model.respond_to_query()
+    print(response)
 
 
 if __name__ == '__main__':
